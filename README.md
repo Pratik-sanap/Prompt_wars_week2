@@ -1,7 +1,6 @@
 # 🗳️ ElectWise
 
 ![ElectWise Screenshot](screenshot_placeholder.png)
-*(Replace with an actual screenshot of the app)*
 
 ## 📝 Project Description (Hackathon Submission)
 ElectWise is an interactive, AI-powered election guide that empowers first-time voters and citizens with clear, non-partisan information. Built using FastAPI and Google Gemini AI, it transforms complex election procedures into an accessible, step-by-step visual timeline. Users can test their knowledge with an AI-generated quiz, study custom flashcards, or chat directly with the ElectWise AI assistant for personalized answers regarding voter registration, polling day logistics, and election laws. By eliminating confusing jargon, ElectWise makes participating in democracy simple, engaging, and stress-free.
@@ -72,24 +71,3 @@ The goal was to create a "one-stop shop" for election information that isn't ove
 
 ---
 
-## 🎬 30-Second Demo Script
-
-**[0:00 - 0:05]**
-*(Screen recording starts on the hero section. Cursor moves to the Timeline tab.)*
-**Speaker:** "Welcome to ElectWise, your AI-powered election guide. Understanding how to vote shouldn't be confusing."
-
-**[0:05 - 0:12]**
-*(Click through a couple of steps on the Timeline to show the drop-down details.)*
-**Speaker:** "Our interactive timeline breaks down the entire election process step-by-step, from checking eligibility to inauguration day."
-
-**[0:12 - 0:20]**
-*(Switch to the Flashcards tab. Generate a set for 'Voter Registration'. Flip a card.)*
-**Speaker:** "Need to study up? Our Gemini-powered flashcards dynamically generate bite-sized facts on any election topic you type in."
-
-**[0:20 - 0:25]**
-*(Switch to the Chat tab. Click one of the quick-ask suggestions like 'What ID do I need?' and show the AI typing out an answer.)*
-**Speaker:** "And if you have specific questions, the ElectWise AI Chat assistant is here to give you clear, non-partisan answers instantly."
-
-**[0:25 - 0:30]**
-*(Zoom out to show the full UI. End recording.)*
-**Speaker:** "ElectWise makes participating in democracy simple. Try it today!"
