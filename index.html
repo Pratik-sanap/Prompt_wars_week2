@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ElectWise — Your Election Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0e1a;
+  --bg2:#111827;
+  --card:#161d2e;
+  --border:#1e2d4a;
+  --accent:#f59e0b;
+  --accent2:#3b82f6;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --success:#10b981;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── HEADER ── */
+header{
+  background:linear-gradient(135deg,#0a0e1a 0%,#111827 50%,#0f172a 100%);
+  border-bottom:1px solid var(--border);
+  padding:1.2rem 2rem;
+  display:flex;align-items:center;gap:1rem;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.logo{display:flex;align-items:center;gap:.6rem;}
+.logo-icon{font-size:1.6rem;}
+.logo-text{font-size:1.2rem;font-weight:800;background:linear-gradient(90deg,#f59e0b,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:.7rem;color:var(--muted);font-weight:400;-webkit-text-fill-color:var(--muted);}
+header nav{margin-left:auto;display:flex;gap:.5rem;}
+header nav button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:8px;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;transition:all .2s;}
+header nav button:hover,header nav button.active{border-color:var(--accent);color:var(--accent);}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;padding:4rem 2rem 2rem;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(245,158,11,.08) 0%,transparent 70%);
+}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.2;margin-bottom:1rem;}
+.hero h1 span{background:linear-gradient(90deg,#f59e0b,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:1rem;max-width:540px;margin:0 auto 2rem;}
+.quick-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:2rem;}
+.chip{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--accent);padding:.4rem .9rem;border-radius:999px;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.chip:hover{background:rgba(245,158,11,.2);transform:translateY(-1px);}
+
+/* ── LAYOUT ── */
+.main{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:1200px;margin:0 auto;padding:0 1.5rem 3rem;}
+@media(max-width:768px){.main{grid-template-columns:1fr;}}
+
+/* ── PANEL ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;}
+.panel-header{padding:1rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem;}
+.panel-header .icon{font-size:1.1rem;}
+.panel-header h2{font-size:.95rem;font-weight:600;}
+.panel-header .badge{margin-left:auto;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);font-size:.65rem;padding:.2rem .5rem;border-radius:4px;}
+
+/* ── TIMELINE ── */
+.timeline{padding:1rem 1.2rem;flex:1;overflow-y:auto;max-height:520px;}
+.tl-step{display:flex;gap:1rem;margin-bottom:.5rem;cursor:pointer;border-radius:10px;padding:.6rem;transition:background .2s;position:relative;}
+.tl-step:hover{background:rgba(245,158,11,.06);}
+.tl-step.active{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);}
+.tl-left{display:flex;flex-direction:column;align-items:center;gap:0;}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--border);border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;transition:all .3s;}
+.tl-step.done .step-num{background:var(--success);border-color:var(--success);color:#fff;}
+.tl-step.active .step-num{background:var(--accent);border-color:var(--accent);color:#000;}
+.tl-line{width:2px;flex:1;background:var(--border);min-height:16px;margin:.2rem 0;}
+.tl-content{flex:1;}
+.tl-title{font-size:.88rem;font-weight:600;margin-bottom:.15rem;}
+.tl-sub{font-size:.73rem;color:var(--muted);}
+.tl-detail{margin-top:.6rem;font-size:.78rem;color:var(--text);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:.7rem;display:none;border-left:2px solid var(--accent);}
+.tl-step.active .tl-detail{display:block;animation:fadeIn .3s ease;}
+
+/* ── CHAT ── */
+.chat-messages{flex:1;overflow-y:auto;max-height:380px;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.8rem;}
+.msg{display:flex;gap:.6rem;animation:fadeIn .3s ease;}
+.msg.user{flex-direction:row-reverse;}
+.avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;}
+.ai-avatar{background:linear-gradient(135deg,#f59e0b,#d97706);}
+.user-avatar{background:linear-gradient(135deg,#3b82f6,#2563eb);}
+.bubble{max-width:82%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:.65rem .9rem;font-size:.82rem;line-height:1.6;}
+.msg.user .bubble{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.25);}
+.bubble ul{margin-left:1rem;margin-top:.3rem;}
+.bubble li{margin-bottom:.2rem;}
+.chat-input-area{padding:.9rem 1.2rem;border-top:1px solid var(--border);}
+.input-row{display:flex;gap:.5rem;}
+#chat-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;transition:border .2s;}
+#chat-input:focus{border-color:var(--accent);}
+#chat-input::placeholder{color:var(--muted);}
+#send-btn{background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:10px;padding:.6rem 1rem;cursor:pointer;font-size:.9rem;transition:transform .15s,opacity .2s;}
+#send-btn:hover{transform:scale(1.05);}
+#send-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── RESULT PANEL ── */
+.result-box{margin:0 1.5rem 1.5rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;display:none;animation:fadeIn .4s ease;}
+.result-box.visible{display:block;}
+.result-box h3{font-size:.9rem;font-weight:700;color:var(--accent);margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+.result-box .steps-list{list-style:none;}
+.result-box .steps-list li{display:flex;gap:.7rem;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem;line-height:1.5;}
+.result-box .steps-list li:last-child{border-bottom:none;}
+.step-dot{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;flex-shrink:0;color:#000;}
+
+/* ── LOADING ── */
+.typing{display:flex;gap:4px;align-items:center;padding:.4rem 0;}
+.typing span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce .8s infinite;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-5px);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── API KEY BANNER ── */
+.api-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:.8rem 1.2rem;margin:0 1.5rem 1rem;font-size:.8rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;}
+.api-banner input{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:7px;padding:.35rem .7rem;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;flex:1;min-width:200px;outline:none;}
+.api-banner input:focus{border-color:var(--accent);}
+.api-banner button{background:var(--accent);border:none;border-radius:7px;padding:.35rem .8rem;font-size:.78rem;font-weight:600;cursor:pointer;color:#000;font-family:'Inter',sans-serif;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">🗳️</span>
+    <div>
+      <div class="logo-text">ElectWise</div>
+      <div class="logo-sub">Your Election Guide</div>
+    </div>
+  </div>
+  <nav>
+    <button class="active" onclick="showSection('guide')">📋 Timeline</button>
+    <button onclick="showSection('chat')">💬 Ask AI</button>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>Understand <span>Elections</span><br/>Step by Step</h1>
+  <p>Ask questions, explore the timeline, and get simple explanations — powered by Google AI Studio.</p>
+  <div class="quick-chips">
+    <div class="chip" onclick="askQuestion('How do I register to vote?')">🗂️ Register to vote</div>
+    <div class="chip" onclick="askQuestion('What happens on election day?')">📅 Election day</div>
+    <div class="chip" onclick="askQuestion('How are votes counted?')">🔢 Vote counting</div>
+    <div class="chip" onclick="askQuestion('Can I vote by mail?')">📬 Mail-in voting</div>
+    <div class="chip" onclick="askQuestion('How is the winner decided?')">🏆 Who wins?</div>
+  </div>
+</div>
+
+<!-- API Key Banner -->
+<div class="api-banner" id="api-banner">
+  <span>🔑 Enter your <strong>Google AI Studio API Key</strong> to enable AI answers:</span>
+  <input type="password" id="api-key-input" placeholder="AIza..."/>
+  <button onclick="saveApiKey()">Save Key</button>
+  <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent);font-size:.75rem;text-decoration:none;">Get free key →</a>
+</div>
+
+<!-- Result Box (AI full answer) -->
+<div class="result-box" id="result-box">
+  <h3>✨ AI Breakdown</h3>
+  <div id="result-content"></div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: TIMELINE -->
+  <div class="panel" id="timeline-panel">
+    <div class="panel-header">
+      <span class="icon">📋</span>
+      <h2>Election Timeline</h2>
+      <span class="badge">Click any step</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- RIGHT: CHAT -->
+  <div class="panel" id="chat-panel">
+    <div class="panel-header">
+      <span class="icon">💬</span>
+      <h2>Ask a Question</h2>
+      <span class="badge">Gemini AI</span>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg">
+        <div class="avatar ai-avatar">🤖</div>
+        <div class="bubble">Hi! I'm your election guide. Ask me anything about voting, registration, or how elections work. Try clicking a quick question above!</div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="input-row">
+        <input type="text" id="chat-input" placeholder="e.g. How do I register to vote?" onkeydown="if(event.key==='Enter')sendMessage()"/>
+        <button id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ──
+const STEPS = [
+  {
+    num:1, icon:"✅", title:"Check Eligibility",
+    sub:"Are you eligible to vote?",
+    detail:"In the US, you must be: (1) a US citizen, (2) at least 18 years old by Election Day, (3) a resident of the state where you register. Some states allow 17-year-olds to vote in primaries if they'll be 18 by the general election."
+  },
+  {
+    num:2, icon:"📝", title:"Register to Vote",
+    sub:"Sign up before the deadline",
+    detail:"Register online at vote.gov, by mail, or in person at your local election office. Deadlines vary by state — usually 15–30 days before the election. Some states offer same-day registration. You'll need your address, ID number or last 4 SSN digits."
+  },
+  {
+    num:3, icon:"📍", title:"Find Your Polling Place",
+    sub:"Know where to go",
+    detail:"After registering, you're assigned a polling place based on your address. Find it at vote.gov or your state's election website. Hours are typically 6am–8pm on Election Day. If you move, update your registration!"
+  },
+  {
+    num:4, icon:"📬", title:"Choose How to Vote",
+    sub:"In-person, early, or by mail",
+    detail:"You have options: (1) Vote in person on Election Day, (2) Early voting — many states open polls 1–2 weeks early, (3) Absentee/Mail-in ballot — request one from your county clerk. Mail-in deadlines vary, so apply early."
+  },
+  {
+    num:5, icon:"🗳️", title:"Cast Your Vote",
+    sub:"Election Day — make it count",
+    detail:"Bring a valid ID (requirements vary by state). A poll worker will verify your registration. You'll receive a ballot, mark your choices in a private booth, then submit it. You may get an 'I Voted' sticker! The whole process takes about 5–15 minutes."
+  },
+  {
+    num:6, icon:"🔢", title:"Votes Are Counted",
+    sub:"After polls close",
+    detail:"Ballots are counted by election officials — both digitally (scanning machines) and manually audited. Mail-in ballots may take days to count. Results are reported throughout the night but are not certified immediately — this is normal."
+  },
+  {
+    num:7, icon:"🏆", title:"Results & Certification",
+    sub:"The official outcome",
+    detail:"Preliminary results are announced on election night. Official certification happens days to weeks later after all ballots (including mail-in) are verified. For presidential elections, the Electoral College meets in December. Inauguration is January 20."
+  }
+];
+
+let activeStep = null;
+
+function renderTimeline(){
+  const el = document.getElementById('timeline');
+  el.innerHTML = STEPS.map((s,i) => `
+    <div class="tl-step" id="step-${s.num}" onclick="toggleStep(${s.num})">
+      <div class="tl-left">
+        <div class="step-num">${s.icon}</div>
+        ${i < STEPS.length-1 ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-content">
+        <div class="tl-title">${s.title}</div>
+        <div class="tl-sub">${s.sub}</div>
+        <div class="tl-detail">${s.detail}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleStep(num){
+  if(activeStep === num){
+    document.getElementById('step-'+num).classList.remove('active');
+    activeStep = null;
+    return;
+  }
+  if(activeStep) document.getElementById('step-'+activeStep)?.classList.remove('active');
+  activeStep = num;
+  document.getElementById('step-'+num).classList.add('active');
+  document.getElementById('step-'+num).scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── API KEY ──
+let API_KEY = localStorage.getItem('ew_api_key') || '';
+function saveApiKey(){
+  API_KEY = document.getElementById('api-key-input').value.trim();
+  if(API_KEY){ localStorage.setItem('ew_api_key',API_KEY); document.getElementById('api-banner').style.display='none'; }
+}
+window.addEventListener('load',()=>{
+  if(API_KEY) document.getElementById('api-banner').style.display='none';
+});
+
+// ── CHAT ──
+let chatHistory = [];
+
+function addMsg(role, html){
+  const wrap = document.getElementById('chat-messages');
+  const isUser = role==='user';
+  const div = document.createElement('div');
+  div.className = `msg ${isUser?'user':''}`;
+  div.innerHTML = `
+    <div class="avatar ${isUser?'user-avatar':'ai-avatar'}">${isUser?'👤':'🤖'}</div>
+    <div class="bubble">${html}</div>
+  `;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function showTyping(){
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className='msg';div.id='typing-indicator';
+  div.innerHTML=`<div class="avatar ai-avatar">🤖</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+function hideTyping(){ document.getElementById('typing-indicator')?.remove(); }
+
+async function callGemini(question){
+  if(!API_KEY) return "⚠️ Please enter your Google AI Studio API key above to get AI-powered answers!";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+  const systemCtx = `You are ElectWise, a friendly non-partisan election guide for first-time voters in the US.
+
+When a user asks a question, follow this exact structure:
+1. **Stage:** Start with one bold line identifying which election stage their question is about (e.g. "📋 Stage: Vote Counting").
+2. **How it works:** Give a numbered list of 3–5 simple, jargon-free steps explaining that stage.
+3. **What happens next:** End with a single sentence starting with "➡️ What happens next:" that tells the user what follows this stage.
+
+Keep the total response under 200 words. Use plain language a first-time voter can understand. Do not use legal or technical jargon. Always recommend vote.gov for local details.`;
+  const body = {
+    contents:[
+      {role:"user",parts:[{text: systemCtx + "\n\nUser question: " + question}]}
+    ]
+  };
+  try{
+    const res = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data = await res.json();
+    if(data.candidates?.[0]?.content?.parts?.[0]?.text){
+      return data.candidates[0].content.parts[0].text;
+    }
+    return "Sorry, I couldn't get an answer. Please check your API key and try again.";
+  } catch(e){
+    return "Network error. Please check your connection and API key.";
+  }
+}
+
+function formatAIText(text){
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n\n/g,'<br/><br/>')
+    .replace(/\n(\d+)\./g,'<br/>$1.')
+    .replace(/\n-\s/g,'<br/>• ');
+}
+
+async function sendMessage(){
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if(!q) return;
+  input.value='';
+  document.getElementById('send-btn').disabled=true;
+  addMsg('user', q);
+  showTyping();
+  const answer = await callGemini(q);
+  hideTyping();
+  addMsg('ai', formatAIText(answer));
+  document.getElementById('send-btn').disabled=false;
+  input.focus();
+}
+
+function askQuestion(q){
+  document.getElementById('chat-input').value = q;
+  sendMessage();
+  // scroll to chat
+  document.getElementById('chat-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showSection(s){
+  const btns = document.querySelectorAll('header nav button');
+  btns.forEach((b,i)=>b.classList.toggle('active', (s==='guide'&&i===0)||(s==='chat'&&i===1)));
+}
+
+// ── INIT ──
+renderTimeline();
+</script>
+</body>
+</html>

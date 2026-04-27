@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>ElectWise — Interactive Election Guide</title>
+  <meta name="description" content="Learn how elections work with interactive flashcards, an AI chat assistant, and a visual timeline. Powered by Google Gemini."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header id="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-orb">🗳️</div>
+      <div>
+        <div class="logo-name">ElectWise</div>
+        <div class="logo-tag">Powered by Gemini AI</div>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-tab="timeline" onclick="switchTab('timeline')">
+        <span>📋</span> Timeline
+      </button>
+      <button class="nav-btn" data-tab="flashcards" onclick="switchTab('flashcards')">
+        <span>🃏</span> Flashcards
+      </button>
+      <button class="nav-btn" data-tab="quiz" onclick="switchTab('quiz')">
+        <span>🧠</span> Quiz
+      </button>
+      <button class="nav-btn" data-tab="chat" onclick="switchTab('chat')">
+        <span>💬</span> Ask AI
+      </button>
+    </nav>
+    <button class="settings-btn" onclick="toggleSettings()" title="API Settings">⚙️</button>
+  </div>
+</header>
+
+<!-- ═══ SETTINGS DRAWER ═══ -->
+<div class="settings-overlay" id="settings-overlay" onclick="toggleSettings()"></div>
+<div class="settings-drawer" id="settings-drawer">
+  <div class="drawer-header">
+    <h3>⚙️ Settings</h3>
+    <button onclick="toggleSettings()" class="close-btn">✕</button>
+  </div>
+  <div class="drawer-body">
+    <label class="field-label">🔑 Gemini API Key</label>
+    <input type="password" id="api-key-input" placeholder="AIza..." class="field-input"/>
+    <button class="save-key-btn" onclick="saveKey()">Save Key</button>
+    <a href="https://aistudio.google.com/apikey" target="_blank" class="get-key-link">
+      Get a free API key →
+    </a>
+    <div class="key-status" id="key-status"></div>
+    <hr class="drawer-sep"/>
+    <label class="field-label">🌐 Backend URL</label>
+    <input type="text" id="backend-url-input" placeholder="http://localhost:8000" class="field-input"/>
+    <button class="save-key-btn" onclick="saveBackendUrl()">Save URL</button>
+  </div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-bg-blur"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🇺🇸 Your Election Guide</div>
+    <h1 class="hero-title">Understand <span class="gradient-text">Elections</span><br/>Like Never Before</h1>
+    <p class="hero-sub">Interactive flashcards, AI-powered answers, and a step-by-step visual timeline — all in one place.</p>
+    <div class="hero-chips">
+      <button class="chip" onclick="quickAsk('How do I register to vote?')">🗂️ Register to vote</button>
+      <button class="chip" onclick="quickAsk('What happens on election day?')">📅 Election day</button>
+      <button class="chip" onclick="quickAsk('How are votes counted?')">🔢 Vote counting</button>
+      <button class="chip" onclick="quickAsk('What is the Electoral College?')">🏛️ Electoral College</button>
+      <button class="chip" onclick="quickAsk('Can I vote by mail?')">📬 Mail-in voting</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main-content">
+
+  <!-- ── TAB: TIMELINE ── -->
+  <section class="tab-panel active" id="tab-timeline">
+    <div class="section-header">
+      <h2>📋 Election Timeline</h2>
+      <p>Click any step to expand details and learn more</p>
+    </div>
+    <div class="timeline-wrapper">
+      <div class="timeline-track" id="timeline-track">
+        <div class="timeline-loading">⏳ Loading timeline...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: FLASHCARDS ── -->
+  <section class="tab-panel" id="tab-flashcards">
+    <div class="section-header">
+      <h2>🃏 Flashcards</h2>
+      <p>Tap a card to reveal the answer. Use the controls to navigate or generate new topics.</p>
+    </div>
+    <div class="fc-controls">
+      <div class="fc-topic-row">
+        <input type="text" id="fc-topic" placeholder="Topic (e.g. voter registration)" class="field-input topic-input"/>
+        <button class="gen-btn" onclick="generateFlashcards()" id="fc-gen-btn">
+          ✨ Generate Cards
+        </button>
+      </div>
+      <div class="fc-topic-chips">
+        <button class="topic-chip" onclick="setFcTopic('voter registration')">Registration</button>
+        <button class="topic-chip" onclick="setFcTopic('election day voting process')">Voting Day</button>
+        <button class="topic-chip" onclick="setFcTopic('Electoral College')">Electoral College</button>
+        <button class="topic-chip" onclick="setFcTopic('mail-in and absentee voting')">Mail-in Voting</button>
+        <button class="topic-chip" onclick="setFcTopic('how votes are counted')">Vote Counting</button>
+      </div>
+    </div>
+    <div class="fc-area">
+      <div class="fc-card-wrapper" id="fc-card-wrapper">
+        <div class="fc-empty-state">
+          <div class="empty-icon">🃏</div>
+          <h3>No flashcards yet</h3>
+          <p>Enter a topic above and click "Generate Cards" to create AI-powered flashcards.</p>
+        </div>
+      </div>
+      <div class="fc-nav" id="fc-nav" style="display:none">
+        <button class="fc-arrow" onclick="fcPrev()" id="fc-prev">‹</button>
+        <span class="fc-counter" id="fc-counter">1 / 6</span>
+        <button class="fc-arrow" onclick="fcNext()" id="fc-next">›</button>
+      </div>
+      <div class="fc-progress" id="fc-progress"></div>
+    </div>
+  </section>
+
+  <!-- ── TAB: QUIZ ── -->
+  <section class="tab-panel" id="tab-quiz">
+    <div class="section-header">
+      <h2>🧠 Knowledge Quiz</h2>
+      <p>Test what you know about elections. Get a new AI-generated quiz anytime.</p>
+    </div>
+    <div class="quiz-controls">
+      <div class="fc-topic-row">
+        <input type="text" id="quiz-topic" placeholder="Topic (e.g. voting rights)" class="field-input topic-input"/>
+        <button class="gen-btn" onclick="generateQuiz()" id="quiz-gen-btn">
+          🧠 Start Quiz
+        </button>
+      </div>
+      <div class="fc-topic-chips">
+        <button class="topic-chip" onclick="setQuizTopic('general election process')">General</button>
+        <button class="topic-chip" onclick="setQuizTopic('voter registration and eligibility')">Registration</button>
+        <button class="topic-chip" onclick="setQuizTopic('Electoral College and presidential elections')">Electoral College</button>
+        <button class="topic-chip" onclick="setQuizTopic('election security and vote counting')">Vote Counting</button>
+      </div>
+    </div>
+    <div id="quiz-area">
+      <div class="fc-empty-state">
+        <div class="empty-icon">🧠</div>
+        <h3>Ready to be tested?</h3>
+        <p>Choose a topic and click "Start Quiz" to get 5 AI-generated questions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: CHAT ── -->
+  <section class="tab-panel" id="tab-chat">
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-welcome">
+          <div class="welcome-orb">🤖</div>
+          <h3>Hi! I'm ElectWise AI</h3>
+          <p>Ask me anything about elections, voting, registration, or how the process works. I'm here to help!</p>
+          <div class="welcome-suggestions">
+            <button onclick="quickAsk('How do I register to vote for the first time?')">How do I register?</button>
+            <button onclick="quickAsk('What ID do I need to vote?')">What ID do I need?</button>
+            <button onclick="quickAsk('What is a provisional ballot?')">What is a provisional ballot?</button>
+            <button onclick="quickAsk('How does the Electoral College work?')">How does Electoral College work?</button>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Ask about elections, voting, registration..."
+          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChat();}"
+          autocomplete="off"
+        />
+        <button class="send-btn" id="send-btn" onclick="sendChat()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>🗳️ <strong>ElectWise</strong> — Non-partisan election education</span>
+    <span>Built with FastAPI + Google Gemini AI</span>
+    <a href="https://vote.gov" target="_blank">vote.gov ↗</a>
+  </div>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
