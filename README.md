@@ -1,73 +1,219 @@
-# 🗳️ ElectWise
+# 🗳️ ElectWise — AI-Powered Election Intelligence Platform
+
+> **A production-grade, multi-agent AI system that makes election education radically transparent.**
 
 ![ElectWise Screenshot](screenshot_placeholder.png)
 
-## 📝 Project Description (Hackathon Submission)
-ElectWise is an interactive, AI-powered election guide that empowers first-time voters and citizens with clear, non-partisan information. Built using FastAPI and Google Gemini AI, it transforms complex election procedures into an accessible, step-by-step visual timeline. Users can test their knowledge with an AI-generated quiz, study custom flashcards, or chat directly with the ElectWise AI assistant for personalized answers regarding voter registration, polling day logistics, and election laws. By eliminating confusing jargon, ElectWise makes participating in democracy simple, engaging, and stress-free.
+[![Deploy](https://img.shields.io/badge/Live%20Demo-Google%20Cloud%20Run-4285F4?logo=googlecloud)](https://electwise-1020411827743.us-central1.run.app)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?logo=fastapi)](https://fastapi.tiangolo.com)
+[![Gemini](https://img.shields.io/badge/Google%20Gemini-2.0%20Flash-EA4335?logo=google)](https://ai.google.dev)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions)](https://github.com/Pratik-sanap/Prompt_wars_week2/actions)
 
 ---
 
-## 🎯 Project Details
+## 🧩 Problem Statement
 
-- **Project Name:** ElectWise
-- **Chosen Vertical:** Civic Tech / Education (EdTech)
+Millions of first-time voters are confused about the election process. Existing tools offer static FAQs or simple chatbots — they can't explain *why* an answer is correct, *how confident* they are, or *which verified sources* they used. Misinformation thrives in this vacuum.
 
-### 🤔 Approach and Logic
-The goal was to create a "one-stop shop" for election information that isn't overwhelming. By breaking down the election process into bite-sized, interactive features (a timeline, flashcards, a quiz, and a chat assistant), the app caters to different learning styles. The logic relies on a clean decoupling of the frontend (HTML/CSS/JS) and backend (FastAPI), with the backend acting as a secure proxy to Google's GenAI API. 
-
-### ⚙️ How the Solution Works
-1. **FastAPI Backend:** Serves the frontend static files and exposes RESTful API endpoints (`/api/chat`, `/api/flashcards`, `/api/quiz`, `/api/timeline`).
-2. **Google Gemini Integration:** Uses the `google-genai` SDK to dynamically generate tailored JSON payloads for quizzes and flashcards, and powers the conversational AI for the chat interface.
-3. **Frontend Application:** A responsive, single-page application (SPA) with a sleek glassmorphic UI. It fetches data from the backend and updates the DOM dynamically without page reloads. The API key can be set directly in the UI's settings drawer or loaded from the backend's `.env` file.
-
-### 📌 Assumptions Made
-- Users have basic internet access and a modern web browser to view the interactive UI.
-- The Google Gemini API is available and responsive.
-- The information requested by the user is non-partisan and focuses on US election processes (as instructed in the AI system prompts).
-- Users looking to register or find specific polling data will ultimately be redirected to official sources like `vote.gov` (which the AI is instructed to recommend).
+**ElectWise solves this** by running every question through a 4-agent AI reasoning pipeline, backed by a RAG knowledge base, that shows its work transparently — including a confidence score, reasoning trace, and cited sources.
 
 ---
 
-## 🚀 How to Run Locally
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      USER BROWSER                           │
+│  Timeline │ Flashcards │ Quiz │ 🔬 Deep Dive │ 💬 Chat     │
+└───────────────────┬─────────────────────────────────────────┘
+                    │ HTTP/REST
+┌───────────────────▼─────────────────────────────────────────┐
+│                   FastAPI Backend (v3.0)                     │
+│  /api/agent  /api/chat  /api/flashcards  /api/quiz          │
+│  /api/timeline  /api/search  /health                        │
+└──────┬────────────────────────────────┬──────────────────────┘
+       │                                │
+┌──────▼──────────┐           ┌─────────▼──────────────────────┐
+│   AI Layer      │           │   Knowledge Base (RAG)          │
+│                 │           │                                 │
+│ 1. ResearchAgent│◄──────────│  TF-IDF Semantic Search        │
+│    (RAG lookup) │           │  14 curated election docs      │
+│                 │           │  Topic: Reg, Voting, EC, Law   │
+│ 2. ReasoningAgent           └─────────────────────────────────┘
+│    (step-by-step│
+│     synthesis)  │           ┌─────────────────────────────────┐
+│                 │           │   Google Gemini 2.0 Flash API   │
+│ 3. CriticAgent  ├──────────►│   4 calls per Deep Dive query  │
+│    (confidence  │           │   1 call per Chat message      │
+│     scoring)    │           └─────────────────────────────────┘
+│                 │
+│ 4. PersonaAgent │
+│    (user-level  │
+│     adaptation) │
+└─────────────────┘
+```
+
+---
+
+## ⚡ What Makes This Different from VotePath-AI
+
+| Feature | VotePath-AI | **ElectWise** |
+|---|---|---|
+| AI Architecture | Single prompt-response | **4-agent reasoning pipeline** |
+| Knowledge grounding | None | **RAG with 14 curated docs** |
+| Transparency | ❌ Black box | **✅ Full reasoning trace** |
+| Confidence scoring | ❌ | **✅ CriticAgent evaluates every answer** |
+| Source citations | ❌ | **✅ RAG sources shown with relevance %** |
+| Personalization | ❌ | **✅ Beginner / Intermediate / Expert mode** |
+| Explainable AI | ❌ | **✅ Step-by-step reasoning shown to user** |
+| Backend | Static/Vercel | **FastAPI + Google Cloud Run** |
+| CI/CD | ❌ | **✅ GitHub Actions → Cloud Run** |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | HTML5, Vanilla CSS (Glassmorphism), JavaScript ES2022 |
+| **Backend** | Python 3.11, FastAPI 0.110, Uvicorn |
+| **AI Models** | Google Gemini 2.0 Flash (via `google-genai` SDK) |
+| **RAG Engine** | Custom TF-IDF semantic retriever (zero GPU dependency) |
+| **Agent Framework** | Custom multi-agent orchestrator (`ai_layer/agents.py`) |
+| **Deployment** | Google Cloud Run (Dockerized) |
+| **CI/CD** | GitHub Actions (test → build → deploy) |
+
+---
+
+## 📁 Project Structure
+
+```
+electwise/
+├── main.py                    # FastAPI app — all API routes
+├── requirements.txt
+├── Dockerfile
+├── .env                       # GEMINI_API_KEY (not committed)
+│
+├── ai_layer/
+│   ├── __init__.py
+│   ├── knowledge_base.py      # RAG corpus + TF-IDF retriever (14 docs)
+│   └── agents.py              # 4-agent pipeline orchestrator
+│
+├── static/
+│   ├── index.html             # Single-page app shell
+│   ├── style.css              # Premium glassmorphic UI (~1300 lines)
+│   └── app.js                 # All frontend logic (~480 lines)
+│
+└── .github/
+    └── workflows/
+        └── deploy.yml         # CI/CD: test → Docker → Cloud Run
+```
+
+---
+
+## 🚀 Local Setup
 
 ### Prerequisites
-- Python 3.9+
-- A Google Gemini API Key (Get one free at [Google AI Studio](https://aistudio.google.com/apikey))
+- Python 3.11+
+- Gemini API Key — [Get one free](https://aistudio.google.com/apikey)
 
-### Steps
+```bash
+# 1. Clone
+git clone https://github.com/Pratik-sanap/Prompt_wars_week2.git
+cd Prompt_wars_week2
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Pratik-sanap/Prompt_wars_week2.git
-   cd Prompt_wars_week2
-   ```
+# 2. Install dependencies
+pip install -r requirements.txt
 
-2. **Install the dependencies:**
-   It is recommended to use a virtual environment.
-   ```bash
-   pip install -r requirements.txt
-   ```
+# 3. Set API key
+echo "GEMINI_API_KEY=your_key_here" > .env
 
-3. **Configure your API Key:**
-   Create a `.env` file in the root directory and add your Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_actual_api_key_here
-   ```
-   *(Alternatively, you can input your API key directly through the settings gear icon in the app UI).*
+# 4. Run
+python -m uvicorn main:app --reload --port 8000
 
-4. **Start the FastAPI Server:**
-   ```bash
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-5. **Open the App:**
-   Navigate to `http://localhost:8000` in your web browser.
+# 5. Open
+# http://localhost:8000
+```
 
 ---
 
-## 💡 Future Improvements (Post-Prototype)
-1. **Localization & Multilingual Support:** Add the ability to automatically translate the UI and AI responses into Spanish, Mandarin, and other languages to support a wider demographic of voters.
-2. **State-Specific Dynamic Timelines:** Integrate a civic API (like Google Civic Information API) so the timeline and deadlines automatically adapt based on the user's specific state and zip code.
+## 🔬 How the Multi-Agent Pipeline Works
+
+When you click **Deep Dive** and submit a question, four agents run in sequence:
+
+```
+Question: "How does the Electoral College work?"
+
+[ResearchAgent]   → Searches knowledge base via TF-IDF
+                    Returns: top 3 matching docs + relevance scores
+
+[ReasoningAgent]  → Synthesizes a step-by-step answer from retrieved context
+                    Returns: reasoning_steps[], key_facts[], core_answer
+
+[CriticAgent]     → Evaluates accuracy, assigns confidence 0.0–1.0
+                    Returns: confidence_score: 0.92, label: "High"
+
+[PersonaAgent]    → Adapts tone for user level (Beginner/Intermediate/Expert)
+                    Returns: final markdown answer shown to user
+```
+
+The UI shows every layer: answer, confidence meter, RAG sources with relevance %, and the reasoning trace.
 
 ---
 
+## 🔌 API Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Server status + feature list |
+| `POST` | `/api/agent` | 🔬 Full 4-agent RAG pipeline |
+| `POST` | `/api/chat` | 💬 Conversational AI with history |
+| `POST` | `/api/flashcards` | 🃏 AI-generated flashcards |
+| `POST` | `/api/quiz` | 🧠 AI-generated quiz |
+| `GET` | `/api/timeline` | 📋 Election steps data |
+| `POST` | `/api/search` | 🔍 RAG knowledge base search |
+
+Interactive API docs: [`/docs`](https://electwise-1020411827743.us-central1.run.app/docs)
+
+---
+
+## ☁️ Deployment (Google Cloud Run)
+
+```bash
+# One-command deploy from Cloud Shell
+gcloud run deploy electwise \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars GEMINI_API_KEY=your_key
+```
+
+**CI/CD via GitHub Actions:**  
+Every push to `main` automatically:
+1. Runs import + syntax tests
+2. Builds and smoke-tests the Docker image
+3. Deploys to Google Cloud Run
+
+---
+
+## 💡 Future Scope
+
+1. **Pinecone/ChromaDB** — Replace TF-IDF with dense vector embeddings for higher RAG accuracy
+2. **Multilingual support** — Translate UI + AI responses into Spanish, Hindi, French
+3. **State-specific timelines** — Integrate Google Civic Information API for personalized deadlines
+4. **Feedback loop** — Users rate answers; low-rated responses trigger agent re-runs
+5. **Voice interface** — Web Speech API for accessibility
+
+---
+
+## 🏅 Hackathon: Prompt Wars Week 2
+
+- **Vertical:** Civic Tech / Education
+- **Challenge:** Build an AI-powered civic tool using Google Gemini
+- **Live Demo:** [electwise-1020411827743.us-central1.run.app](https://electwise-1020411827743.us-central1.run.app)
+- **Repo:** [github.com/Pratik-sanap/Prompt_wars_week2](https://github.com/Pratik-sanap/Prompt_wars_week2)
+
+---
+
+*Built with ❤️ using Google Gemini AI · FastAPI · Google Cloud Run*

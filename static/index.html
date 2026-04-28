@@ -31,6 +31,9 @@
       <button class="nav-btn" data-tab="quiz" onclick="switchTab('quiz')">
         <span>🧠</span> Quiz
       </button>
+      <button class="nav-btn" data-tab="deepdive" onclick="switchTab('deepdive')">
+        <span>🔬</span> Deep Dive
+      </button>
       <button class="nav-btn" data-tab="chat" onclick="switchTab('chat')">
         <span>💬</span> Ask AI
       </button>
@@ -191,6 +194,79 @@
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
         </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TAB: DEEP DIVE ── -->
+  <section class="tab-panel" id="tab-deepdive">
+    <div class="section-header">
+      <h2>🔬 Deep Dive AI</h2>
+      <p>4-agent reasoning pipeline with RAG — see exactly <em>how</em> the AI thinks through your question.</p>
+    </div>
+    <div class="dd-input-area">
+      <div class="dd-level-row">
+        <span class="field-label">Experience level:</span>
+        <div class="dd-level-chips">
+          <button class="level-chip active" data-level="beginner" onclick="setLevel('beginner')">🌱 Beginner</button>
+          <button class="level-chip" data-level="intermediate" onclick="setLevel('intermediate')">📘 Intermediate</button>
+          <button class="level-chip" data-level="expert" onclick="setLevel('expert')">🎓 Expert</button>
+        </div>
+      </div>
+      <div class="fc-topic-row" style="margin-top:.75rem">
+        <input type="text" id="dd-question" class="field-input" placeholder="e.g. How does the Electoral College work?" onkeydown="if(event.key==='Enter')runAgent()"/>
+        <button class="gen-btn" id="dd-btn" onclick="runAgent()">🔬 Analyze</button>
+      </div>
+      <div class="fc-topic-chips" style="margin-top:.5rem">
+        <button class="topic-chip" onclick="setDdQ('How does the Electoral College decide the president?')">Electoral College</button>
+        <button class="topic-chip" onclick="setDdQ('What ID do I need to vote?')">Voter ID</button>
+        <button class="topic-chip" onclick="setDdQ('How are mail-in ballots verified?')">Mail-in ballots</button>
+        <button class="topic-chip" onclick="setDdQ('What is a provisional ballot?')">Provisional ballot</button>
+        <button class="topic-chip" onclick="setDdQ('How long does vote counting take?')">Vote counting</button>
+      </div>
+    </div>
+
+    <div id="dd-result" style="display:none">
+      <!-- Confidence Banner -->
+      <div class="dd-confidence" id="dd-confidence"></div>
+
+      <!-- Final Answer -->
+      <div class="dd-card">
+        <div class="dd-card-header"><span>💬</span> AI Answer <span class="dd-agent-tag">PersonaAgent</span></div>
+        <div class="dd-answer" id="dd-answer"></div>
+      </div>
+
+      <!-- RAG Sources -->
+      <div class="dd-card">
+        <div class="dd-card-header"><span>📚</span> Knowledge Sources Retrieved <span class="dd-agent-tag">ResearchAgent · RAG</span></div>
+        <div id="dd-sources"></div>
+      </div>
+
+      <!-- Reasoning Steps -->
+      <div class="dd-card">
+        <div class="dd-card-header"><span>🧩</span> Reasoning Trace <span class="dd-agent-tag">ReasoningAgent</span></div>
+        <ol class="dd-steps" id="dd-steps"></ol>
+      </div>
+
+      <!-- Key Facts -->
+      <div class="dd-card">
+        <div class="dd-card-header"><span>📌</span> Key Facts <span class="dd-agent-tag">ReasoningAgent</span></div>
+        <ul class="dd-facts" id="dd-facts"></ul>
+      </div>
+    </div>
+
+    <div id="dd-empty" class="fc-empty-state">
+      <div class="empty-icon">🔬</div>
+      <h3>Multi-Agent Reasoning</h3>
+      <p>Ask a question and watch 4 specialized AI agents collaborate to produce a verified, explained answer with a confidence score.</p>
+      <div class="dd-agent-flow">
+        <div class="dd-agent-pill">📚 ResearchAgent</div>
+        <div class="dd-flow-arrow">→</div>
+        <div class="dd-agent-pill">🧩 ReasoningAgent</div>
+        <div class="dd-flow-arrow">→</div>
+        <div class="dd-agent-pill">⚖️ CriticAgent</div>
+        <div class="dd-flow-arrow">→</div>
+        <div class="dd-agent-pill">💬 PersonaAgent</div>
       </div>
     </div>
   </section>

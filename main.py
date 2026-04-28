@@ -1,7 +1,11 @@
 """
-ElectWise — Election Guide App
-FastAPI Backend with Google Gemini API Integration
+ElectWise — Election Guide App v3.0
+FastAPI Backend · Google Gemini AI · Multi-Agent RAG Pipeline
 """
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s — %(message)s')
+logger = logging.getLogger("electwise")
 import os
 import json
 from typing import Optional
@@ -12,13 +16,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from google import genai
+from ai_layer.knowledge_base import kb
+from ai_layer.agents import MultiAgentPipeline
 
 # ── Load env ──────────────────────────────────────────────────────────────────
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # ── FastAPI App ───────────────────────────────────────────────────────────────
-app = FastAPI(title="ElectWise API", version="2.0.0")
+app = FastAPI(title="ElectWise API", version="3.0.0", description="Multi-agent election guide powered by Google Gemini AI and RAG")
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,6 +50,15 @@ class FlashcardRequest(BaseModel):
 class QuizRequest(BaseModel):
     topic: Optional[str] = "voting process"
     api_key: Optional[str] = None
+
+class AgentRequest(BaseModel):
+    question: str
+    experience_level: Optional[str] = "beginner"  # beginner | intermediate | expert
+    api_key: Optional[str] = None
+
+class SearchRequest(BaseModel):
+    query: str
+    top_k: Optional[int] = 3
 
 # ── System Prompts ────────────────────────────────────────────────────────────
 CHAT_SYSTEM_PROMPT = """You are ElectWise, a friendly, knowledgeable, and non-partisan election guide assistant.
@@ -124,7 +139,13 @@ async def serve_frontend():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "gemini_configured": bool(GEMINI_API_KEY)}
+    return {
+        "status": "ok",
+        "version": "3.0.0",
+        "gemini_configured": bool(GEMINI_API_KEY),
+        "knowledge_base_docs": len(kb.docs),
+        "features": ["multi-agent-rag", "flashcards", "quiz", "timeline", "semantic-search"]
+    }
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
@@ -285,3 +306,46 @@ async def get_timeline():
         }
     ]
     return {"timeline": timeline, "status": "ok"}
+
+
+@app.post("/api/agent")
+async def agent_answer(req: AgentRequest):
+    """
+    Multi-agent RAG pipeline endpoint.
+    Runs: ResearchAgent → ReasoningAgent → CriticAgent → PersonaAgent
+    Returns full reasoning trace, confidence score, and RAG sources.
+    """
+    try:
+        client = get_client(req.api_key)
+        logger.info(f"Agent pipeline triggered: '{req.question[:60]}' [{req.experience_level}]")
+        pipeline = MultiAgentPipeline(client=client, model="gemini-2.0-flash")
+        result = pipeline.run(
+            question=req.question,
+            experience_level=req.experience_level or "beginner"
+        )
+        logger.info(f"Pipeline complete — confidence: {result['confidence_score']}")
+        return {"status": "ok", **result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Agent pipeline error: {e}")
+        raise HTTPException(status_code=500, detail=f"Agent pipeline error: {str(e)}")
+
+
+@app.post("/api/search")
+async def semantic_search(req: SearchRequest):
+    """RAG knowledge base semantic search endpoint."""
+    try:
+        results = kb.retrieve(req.query, top_k=req.top_k)
+        return {
+            "status": "ok",
+            "query": req.query,
+            "results": [
+                {"title": d["title"], "category": d["category"],
+                 "content": d["content"][:300] + "...",
+                 "relevance_score": s}
+                for d, s in results
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

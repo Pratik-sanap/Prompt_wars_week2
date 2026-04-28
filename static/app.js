@@ -388,3 +388,95 @@ function formatMarkdown(text) {
     .replace(/\n\n/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
 }
+
+// ── DEEP DIVE ─────────────────────────────────────────────────────────────────
+let ddLevel = 'beginner';
+
+function setLevel(level) {
+  ddLevel = level;
+  document.querySelectorAll('.level-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.level === level);
+  });
+}
+
+function setDdQ(q) {
+  document.getElementById('dd-question').value = q;
+}
+
+async function runAgent() {
+  const question = document.getElementById('dd-question').value.trim();
+  if (!question) return;
+
+  const btn = document.getElementById('dd-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running 4 agents…';
+
+  document.getElementById('dd-result').style.display = 'none';
+  document.getElementById('dd-empty').style.display = 'none';
+
+  try {
+    const data = await apiPost('/api/agent', {
+      question,
+      experience_level: ddLevel
+    });
+    renderAgentResult(data);
+    document.getElementById('dd-result').style.display = 'block';
+  } catch (e) {
+    document.getElementById('dd-empty').style.display = 'block';
+    document.getElementById('dd-empty').innerHTML = `
+      <div class="empty-icon">⚠️</div>
+      <h3>Agent pipeline error</h3>
+      <p>${e.message}</p>
+      ${!API_KEY ? '<p style="color:var(--accent);margin-top:.5rem">Add your Gemini API key in ⚙️ Settings.</p>' : ''}`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🔬 Analyze';
+  }
+}
+
+function renderAgentResult(data) {
+  // Confidence banner
+  const score = data.confidence_score || 0.75;
+  const label = (data.confidence_label || 'Medium').toLowerCase();
+  const pct = Math.round(score * 100);
+  const barColor = label === 'high' ? 'var(--success)' : label === 'medium' ? 'var(--accent)' : 'var(--danger)';
+  document.getElementById('dd-confidence').className = `dd-confidence ${label}`;
+  document.getElementById('dd-confidence').innerHTML = `
+    <div class="dd-conf-score">${pct}%</div>
+    <div class="dd-conf-detail">
+      <strong>${data.confidence_label} Confidence</strong>
+      <span style="font-size:.78rem;font-weight:400;opacity:.8">Verified by CriticAgent · ${data.question_type || 'factual'} question</span>
+      <div class="dd-conf-bar-wrap" style="margin-top:.35rem">
+        <div class="dd-conf-bar" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+    </div>`;
+
+  // Final answer
+  document.getElementById('dd-answer').innerHTML = formatMarkdown(data.answer || '');
+
+  // RAG sources
+  const sources = data.rag_sources || [];
+  document.getElementById('dd-sources').innerHTML = sources.length
+    ? sources.map(s => `
+        <div class="dd-source-item">
+          <div class="dd-source-score">${Math.round((s.score || 0) * 100)}%</div>
+          <div class="dd-source-body">
+            <div class="dd-source-cat">${s.category}</div>
+            <div class="dd-source-title">${s.title}</div>
+            <div class="dd-source-snippet">Relevance score: ${s.score?.toFixed(3) || 'N/A'}</div>
+          </div>
+        </div>`).join('')
+    : '<p style="padding:1rem;color:var(--muted);font-size:.85rem">No RAG sources matched for this query.</p>';
+
+  // Reasoning steps
+  const steps = data.reasoning_steps || [];
+  document.getElementById('dd-steps').innerHTML = steps.length
+    ? steps.map(s => `<li>${s.replace(/^Step \d+:\s*/i, '')}</li>`).join('')
+    : '<li>No reasoning trace available.</li>';
+
+  // Key facts
+  const facts = data.key_facts || [];
+  document.getElementById('dd-facts').innerHTML = facts.length
+    ? facts.map(f => `<li>${f}</li>`).join('')
+    : '<li>No key facts extracted.</li>';
+}
