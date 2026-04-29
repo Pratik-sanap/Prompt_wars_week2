@@ -101,7 +101,7 @@ Do NOT include JSON in your response — write natural, helpful prose."""
 class MultiAgentPipeline:
     """Orchestrates 4 specialized agents for election Q&A."""
 
-    def __init__(self, client, model: str = "gemini-2.0-flash"):
+    def __init__(self, client, model: str = "gemini-1.5-flash"):
         self.client = client
         self.model = model
 
