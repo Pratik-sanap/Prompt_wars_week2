@@ -11,6 +11,7 @@ Agents:
 from __future__ import annotations
 import re
 import json
+import time
 from typing import Optional
 from ai_layer.knowledge_base import kb
 
@@ -154,6 +155,7 @@ class MultiAgentPipeline:
         question_type = research.get("question_type", "factual")
 
         # ── Step 2: Reasoning Agent ───────────────────────────────────────────
+        time.sleep(2)  # Prevent free-tier rate limiting
         reasoning_prompt = REASONING_PROMPT.format(
             question=question,
             question_type=question_type,
@@ -164,6 +166,7 @@ class MultiAgentPipeline:
         trace.append({"agent": "ReasoningAgent", "output": reasoning})
 
         # ── Step 3: Critic Agent ──────────────────────────────────────────────
+        time.sleep(2)  # Prevent free-tier rate limiting
         critic_prompt = CRITIC_PROMPT.format(
             question=question,
             reasoning=json.dumps(reasoning),
@@ -174,6 +177,7 @@ class MultiAgentPipeline:
         trace.append({"agent": "CriticAgent", "output": critic})
 
         # ── Step 4: Persona Agent (final answer) ──────────────────────────────
+        time.sleep(2)  # Prevent free-tier rate limiting
         persona_prompt = PERSONA_PROMPT.format(
             question=question,
             experience_level=experience_level,
