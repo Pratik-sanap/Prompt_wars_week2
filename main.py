@@ -318,7 +318,7 @@ async def agent_answer(req: AgentRequest):
     try:
         client = get_client(req.api_key)
         logger.info(f"Agent pipeline triggered: '{req.question[:60]}' [{req.experience_level}]")
-        pipeline = MultiAgentPipeline(client=client, model="gemini-2.5-flash")
+        pipeline = MultiAgentPipeline(client=client, model="gemini-2.0-flash-lite")
         result = pipeline.run(
             question=req.question,
             experience_level=req.experience_level or "beginner"
